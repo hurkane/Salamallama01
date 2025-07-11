@@ -1,8 +1,8 @@
 import axios from "axios";
 //export const API_BASE_URL = process.env.API_BASE_URL || "http://192.168.12.242";
 
-export const API_BASE_URL = "http://192.168.12.242";
-//export const API_BASE_URL = "https://salamallama.com";
+//export const API_BASE_URL = "http://192.168.12.242";
+export const API_BASE_URL = process.env.API_BASE_URL || "https://salamallama.com";
 
 export const register = async (name, username, email, password) => {
   const response = await axios.post(`${API_BASE_URL}/api/auth/register`, {

@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     # Image processing libraries
     libmagickwand-dev \
+    graphicsmagick \ 
     imagemagick \
     # PDF processing
     poppler-utils \

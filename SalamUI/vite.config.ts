@@ -1,10 +1,7 @@
 import { vitePlugin as remix } from "@remix-run/dev";
-import { installGlobals } from "@remix-run/node";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { execSync } from "child_process";
-
-installGlobals();
+import { execSync } from "child_process"; // Import execSync to execute shell command
 
 declare module "@remix-run/node" {
   interface Future {
@@ -12,7 +9,7 @@ declare module "@remix-run/node" {
   }
 }
 
-const localIp = execSync("node get-local-ip.cjs").toString().trim();
+const localIp = execSync("node get-local-ip.cjs").toString().trim(); // Get the local IP address from the script
 
 export default defineConfig({
   plugins: [
@@ -24,22 +21,15 @@ export default defineConfig({
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
       },
-      ignoredRouteFiles: ["**/.*"],
     }),
     tsconfigPaths(),
   ],
   server: {
-    host: "0.0.0.0",
-    port: 3000,
+    host: "0.0.0.0", // This allows other devices on the network to access the dev server
+    port: 3000, // You can change this port if needed
     hmr: {
-      host: localIp,
-      port: 3000,
+      host: localIp, // Use the local IP address for HMR
+      port: 3000, // The port Vite should use for HMR
     },
-  },
-  ssr: {
-    noExternal: ["react", "react-dom"],
-  },
-  optimizeDeps: {
-    include: ["react", "react-dom"],
   },
 });

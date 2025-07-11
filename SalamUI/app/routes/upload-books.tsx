@@ -9,7 +9,7 @@ import { useState } from "react";
 
 export const action : ActionFunction = async ({ request }: ActionFunctionArgs) => {
   try {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:4000";
+    const backendUrl = process.env.API_BASE_URL || "http://books:4000";
     
     const cookieHeader = request.headers.get("Cookie");
     const session = await getSession(cookieHeader);
