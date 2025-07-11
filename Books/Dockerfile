@@ -1,16 +1,14 @@
 # Use a more recent Node.js version with better Python support
 FROM node:18-bullseye
 
-# Install system dependencies
+# Install system dependencies with proper GraphicsMagick setup
 RUN apt-get update && apt-get install -y \
     # Python and pip for PaddleOCR/EasyOCR
     python3 \
     python3-pip \
     python3-dev \
-    # Image processing libraries
-    libmagickwand-dev \
-    graphicsmagick \ 
-    imagemagick \
+    # Image processing libraries - install GraphicsMagick first
+    graphicsmagick \
     # PDF processing
     poppler-utils \
     # OCR dependencies
@@ -34,6 +32,21 @@ RUN apt-get update && apt-get install -y \
     cmake \
     git \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure GraphicsMagick properly
+RUN which gm && gm version
+RUN ln -sf /usr/bin/gm /usr/local/bin/gm
+
+# Test GraphicsMagick with a simple command
+RUN echo "Testing GraphicsMagick..."
+RUN gm convert -list format | head -5 || echo "Format list failed but continuing..."
+
+# Create a test to ensure GraphicsMagick works with identify command
+RUN echo "Testing identify command..."
+RUN echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==' | base64 -d > /tmp/test.png \
+    && gm identify /tmp/test.png \
+    && rm /tmp/test.png \
+    && echo "GraphicsMagick identify test passed"
 
 # Set working directory
 WORKDIR /app
@@ -62,6 +75,7 @@ RUN mkdir -p storage/images temp
 # Set environment variables
 ENV NODE_ENV=production
 ENV PYTHONPATH=/usr/local/lib/python3.9/site-packages
+ENV PATH="/usr/bin:$PATH"
 
 # Expose port
 EXPOSE 4000

@@ -18,7 +18,7 @@ const verifyToken  = require("./auth");
 const axios = require('axios');
 const { spawn } = require('child_process');
 const sharp = require('sharp');
-
+const { execSync } = require('child_process');
 
 
 const LLM_BASE =
@@ -256,19 +256,60 @@ function simpleHash(str) {
 
 
 
-// Helper function to convert PDF to images
+// Helper function to convert PDF to images with proper GraphicsMagick configuration
 async function convertPdfToImages(pdfPath, outputDir) {
-  const convert = fromPath(pdfPath, {
-    density: 300,
-    saveFilename: "page",
-    savePath: outputDir,
-    format: "png",
-    width: 2000,
-    height: 2000
-  });
-  
-  const pages = await convert.bulk(-1);
-  return pages;
+  try {
+    // First, verify GraphicsMagick is available
+    try {
+      execSync('gm version', { stdio: 'pipe' });
+      console.log('GraphicsMagick is available');
+    } catch (error) {
+      console.error('GraphicsMagick test failed:', error.message);
+      throw new Error('GraphicsMagick is not properly installed or configured');
+    }
+
+    // Configure pdf2pic with explicit GraphicsMagick settings
+    const convert = fromPath(pdfPath, {
+      density: 300,
+      saveFilename: "page",
+      savePath: outputDir,
+      format: "png",
+      width: 2000,
+      height: 2000,
+      // Explicitly specify GraphicsMagick binary path
+      gm_path: "/usr/bin/gm"
+    });
+
+    console.log(`Converting PDF: ${pdfPath} to images in: ${outputDir}`);
+    const pages = await convert.bulk(-1);
+    console.log(`Successfully converted ${pages.length} pages`);
+    return pages;
+
+  } catch (error) {
+    console.error('PDF conversion failed:', error.message);
+    console.error('Error details:', error);
+    
+    // Try alternative approach with different configuration
+    try {
+      console.log('Attempting conversion with alternative configuration...');
+      const convert = fromPath(pdfPath, {
+        density: 150, // Lower density for better compatibility
+        saveFilename: "page",
+        savePath: outputDir,
+        format: "png",
+        width: 1000,
+        height: 1000,
+        // Let pdf2pic auto-detect the binary
+      });
+
+      const pages = await convert.bulk(-1);
+      console.log(`Successfully converted ${pages.length} pages with alternative config`);
+      return pages;
+    } catch (altError) {
+      console.error('Alternative conversion also failed:', altError.message);
+      throw new Error(`PDF conversion failed: ${error.message}`);
+    }
+  }
 }
 
 // Helper function to clean up temporary files
