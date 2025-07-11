@@ -1,0 +1,10 @@
+{
+  "name": "salamweb",
+  "version": "1.0.0",
+  "description": "Capacitor service for SalamWeb",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo \"No build command specified. Customize this script if needed.\""
+  },
+  "license": "MIT"
+}

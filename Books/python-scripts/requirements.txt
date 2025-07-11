@@ -1,0 +1,6 @@
+paddlepaddle
+paddleocr
+easyocr
+opencv-python
+pillow
+numpy

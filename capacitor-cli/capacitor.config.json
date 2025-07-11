@@ -1,0 +1,10 @@
+{
+  "appId": "salamallama.com",
+  "appName": "salamweb",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://www.salamallama.com",
+    "cleartext": false
+  }
+}

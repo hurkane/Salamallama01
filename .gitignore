@@ -1,0 +1,22 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.cloud
+.env.local
+SalamUI/app/cloudsessions.ts
+# Build outputs
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Editor folders
+.vscode/
+.idea/

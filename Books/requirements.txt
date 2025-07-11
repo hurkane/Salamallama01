@@ -1,0 +1,6 @@
+# Minimal set - let pip resolve dependencies
+numpy
+opencv-python
+pillow
+paddleocr
+easyocr

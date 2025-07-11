@@ -1,0 +1,288 @@
+version: '3.8'
+
+services:
+  postgres-container:
+    image: postgres:latest
+    container_name: postgres-container
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d salamwebapp"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    env_file:
+      - .env
+    ports:
+      - "27017:27017"
+    networks:
+      - my-network
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - salam-ui
+      - salam-auth
+      - salam-feed
+      - salam-notification
+      - salam-media
+      - salam-user
+      - salam-interactions
+      - salam-post
+      - salam-chat
+      - salam-comments
+    networks:
+      - my-network
+
+  salam-chat:
+    build:
+      context: ./SalamChat
+    container_name: salam-chat
+    env_file:
+      - .env
+    ports:
+      - "5008:5008"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      salam-auth:
+        condition: service_started
+    networks:
+      - my-network
+
+  salam-ui:
+    build:
+      context: ./SalamUI
+    container_name: salam-ui
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      salam-auth:
+        condition: service_started
+      salam-feed:
+        condition: service_started
+      salam-notification:
+        condition: service_started
+      salam-media:
+        condition: service_started
+      salam-user:
+        condition: service_started
+      salam-interactions:
+        condition: service_started
+      salam-post:
+        condition: service_started
+      salam-chat:
+        condition: service_started
+      salam-comments:
+        condition: service_started
+    networks:
+      - my-network
+
+  capacitor:
+    build:
+      context: ./capacitor-cli
+    container_name: capacitor
+    env_file:
+      - .env
+    volumes:
+      - /home/azureuser/1/SalamUI:/app
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    networks:
+      - my-network
+
+  books:
+    build:
+      context: ./Books
+    container_name: books
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    volumes:
+      - storage:/usr/src/app/storage
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-media:
+    build:
+      context: ./SalamMedia
+    container_name: salam-media
+    env_file:
+      - .env
+    ports:
+      - "5003:5003"
+    volumes:
+      - post-data:/usr/src/app/post
+      - profile-picture-data:/usr/src/app/profile_picture
+      - banner-data:/usr/src/app/banner
+      - message-data:/usr/src/app/message
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-auth:
+    build:
+      context: ./SalamAuth
+    container_name: salam-auth
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-user:
+    build:
+      context: ./SalamUser
+    container_name: salam-user
+    env_file:
+      - .env
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-feed:
+    build:
+      context: ./SalamFeed
+    container_name: salam-feed
+    env_file:
+      - .env
+    ports:
+      - "5007:5007"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-post:
+    build:
+      context: ./SalamPost
+    container_name: salam-post
+    env_file:
+      - .env
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-notification:
+    build:
+      context: ./SalamNotification
+    container_name: salam-notification
+    env_file:
+      - .env
+    ports:
+      - "5006:5006"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-comments:
+    build:
+      context: ./SalamComments
+    container_name: salam-comments
+    env_file:
+      - .env
+    ports:
+      - "5004:5004"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  salam-interactions:
+    build:
+      context: ./SalamInteractions
+    container_name: salam-interactions
+    env_file:
+      - .env
+    ports:
+      - "5005:5005"
+    depends_on:
+      postgres-container:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mongodb-data:
+  post-data:
+  profile-picture-data:
+  banner-data:
+  message-data:
+  storage:
