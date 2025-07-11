@@ -90,33 +90,81 @@ interface ActionData {
 export const loader: LoaderFunction = async ({ params, request }) => {
   const session = await getSession(request.headers.get("Cookie"));
   const token = session.get("token");
-
+  
   if (!token) return redirect("/sign-in");
-
+  
   const postId = params.postId as string;
   if (!postId) {
     return json<LoaderData>({ error: "Invalid post ID." }, { status: 400 });
   }
 
   try {
-    const post = await getPost(postId, token);
-    const profilePicture = await getProfilePicture(post.userId, token);
-    const interactions = await getInteractions(postId, token);
+    const postResponse = await getPost(postId, token);
+    const profilePictureResponse = await getProfilePicture(postResponse.userId, token);
+    const interactionsResponse = await getInteractions(postId, token);
     const commentsResponse = await getCommentsForPost(postId, token);
-    const comments = commentsResponse.comments;
-    const totalPages = commentsResponse.totalPages;
-    const currentInteraction =
-      (await getCurrentUserInteraction(postId, token)) || {}; // Gracefully handle no interaction
+    const currentInteractionResponse = await getCurrentUserInteraction(postId, token);
+
+    // Clean up post data - only include serializable fields
+    const post = {
+      id: postResponse.id || postResponse._id,
+      userId: postResponse.userId,
+      content: postResponse.content,
+      media: postResponse.media,
+      createdAt: postResponse.createdAt,
+      User: {
+        name: postResponse.User.name,
+        username: postResponse.User.username,
+      }
+    };
+
+    // Clean up interactions data
+    const interactions = Array.isArray(interactionsResponse) 
+      ? interactionsResponse.map(interaction => ({
+          id: interaction.id || interaction._id,
+          userId: interaction.userId,
+          postId: interaction.postId,
+          type: interaction.type
+        }))
+      : [];
+
+    // Clean up comments data
+    const comments = Array.isArray(commentsResponse.comments)
+      ? commentsResponse.comments.map(comment => ({
+          id: comment.id || comment._id,
+          userId: comment.userId,
+          content: comment.content,
+          createdAt: comment.createdAt,
+          media: comment.media,
+          User: {
+            username: comment.User.username,
+            profilePicture: comment.User.profilePicture,
+          }
+        }))
+      : [];
+
+    // Clean up current interaction data
+    const currentInteraction = currentInteractionResponse ? {
+      id: currentInteractionResponse.id || currentInteractionResponse._id,
+      userId: currentInteractionResponse.userId,
+      postId: currentInteractionResponse.postId,
+      type: currentInteractionResponse.type
+    } : null;
+
+    // Ensure profilePicture is a string or null
+    const profilePicture = typeof profilePictureResponse === 'string' 
+      ? profilePictureResponse 
+      : profilePictureResponse?.url || null;
 
     return json<LoaderData>({
       post,
       profilePicture,
       interactions,
       comments,
-      totalPages,
+      totalPages: commentsResponse.totalPages || 0,
       token,
       userId: session.get("userId"),
-      currentInteraction, // Include currentInteraction in the loader data
+      currentInteraction,
     });
   } catch (error) {
     console.error("Error fetching post or interactions:", {

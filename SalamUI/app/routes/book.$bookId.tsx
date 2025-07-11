@@ -204,7 +204,7 @@ return (
         
         {/* Back Navigation */}
         <Link 
-          to="/books" 
+          to="/library" 
           className="inline-flex items-center text-indigo-400 hover:text-indigo-300 transition-all duration-200 mb-4 sm:mb-8 group"
         >
           <svg className="w-4 h-4 mr-2 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

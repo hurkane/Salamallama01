@@ -234,8 +234,8 @@ const ChatNavBar = ({ userId, token, isCollapsed, toggleNav }) => {
 
   return (
     <div className="relative h-full">
-      {/* Toggle Button - Only show on mobile */}
-      {isMobile && (
+      {/* Toggle Button */}
+      {(
         <button
           onClick={toggleNav}
           className={`absolute top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full shadow-lg transition-all duration-200 z-10 flex items-center justify-center ${

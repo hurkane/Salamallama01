@@ -72,6 +72,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     path === "/privacy" ||
     path === "/404" ||
     path === "/library" ||
+    path === "/chats" ||
+    path === "/posts" ||
     path === "/reset-password"
   ) {
     return json({});

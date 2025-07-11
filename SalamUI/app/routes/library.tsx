@@ -34,7 +34,7 @@ type BookMeta = {
 
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const backendUrl = process.env.BACKEND_URL || "http://localhost:4000";
+  const backendUrl = process.env.API_BASE_URL || "http://localhost:4000";
   
   try {
     // Get the session from the request

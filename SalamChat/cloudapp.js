@@ -51,7 +51,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5008;
+const PORT = process.env.CHATPORT || 5008;
 const server = app.listen(PORT, () =>
   console.log(`Chat Server running on PORT ${PORT}...`.yellow.bold)
 );

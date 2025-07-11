@@ -89,7 +89,7 @@ export const action : ActionFunction = async ({ request }: ActionFunctionArgs) =
     const result = await response.json();
     console.log("Upload successful:", result);
     
-    return redirect("/books");
+    return redirect("/library");
   } catch (error) {
     console.error("Upload error:", error);
     return json({ error: "Network error or server unavailable" }, { status: 500 });

@@ -97,9 +97,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const token = jwt.sign({ filePath: mediaPath }, JWT_SECRET, {
       expiresIn: "1h",
     }); // Token valid for 1 hour
-    const responseUrl = `http://salam-media:5003/media/${
-      req.query.type || "others"
-    }/${req.file.filename}`;
+    
+    // Use environment variable for base URL
+    const baseUrl = process.env.API_BASE_URL || "https://salamallama.com";
+    const responseUrl = `${baseUrl}/media/${req.query.type || "others"}/${req.file.filename}`;
 
     res.status(200).json({
       message: "File uploaded successfully",
@@ -119,8 +120,11 @@ app.get("/media/:type/:filename", async (req, res) => {
     const token = jwt.sign({ filePath: mediaPath }, JWT_SECRET, {
       expiresIn: "1h",
     }); // Token valid for 1 hour
-    const fileUrl = `http://192.168.12.242:5003/serve-file/${req.params.type}/${req.params.filename}?token=${token}`;
-
+    
+    // Use environment variable for base URL
+    const baseUrl = process.env.API_BASE_URL || "https://salamallama.com";
+    const fileUrl = `${baseUrl}/serve-file/${req.params.type}/${req.params.filename}?token=${token}`;
+    
     res.status(200).json({ fileUrl });
   } catch (error) {
     console.error("Error generating file URL:", error.message);

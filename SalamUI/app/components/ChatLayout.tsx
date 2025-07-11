@@ -19,10 +19,10 @@ const ChatLayout = ({ children, userId, token }) => {
 
   const toggleNav = () => setIsNavCollapsed(!isNavCollapsed);
 
-  // Determine the actual collapsed state based on screen size
-  const actualCollapsed = isMobile ? isNavCollapsed : false;
+  // Use the collapse state for both mobile and desktop
+  const actualCollapsed = isNavCollapsed;
 
-  // Mobile-specific dimensions - only make collapsed state smaller
+  // Responsive dimensions - different sizes for mobile vs desktop
   const collapsedWidth = isMobile ? "w-8" : "w-12"; // Smaller collapsed width on mobile
   const expandedWidth = "w-80"; // Keep same expanded width
   const collapsedPadding = isMobile ? "pr-8" : "pr-12"; // Matching padding for collapsed
